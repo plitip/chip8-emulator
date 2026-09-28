@@ -154,7 +154,26 @@ switch (first) {
     case 0xC:
     V[second] = (rand() % 256) & right;
     break;
-
+    case 0xD:
+    uint8_t x = V[second] % 64;
+    uint8_t y = V[third] % 32;
+    V[15] = 0;
+    int Icounter = 0;
+    int co_counter = 0;
+    for(;Icounter < last; Icounter++) {
+    uint8_t sprite_row = memory[I+Icounter];
+    for(;co_counter < 8; co_counter++) {
+    if (screen[(Icounter+y)*64 +x+co_counter] & ((sprite_row <<co_counter) & 0x80)>>7 == 1){
+    V[15] = 1;
+        
+    }
+    uint8_t screen_storing = screen[(Icounter+y)*64 +x+co_counter] ^ ((sprite_row <<co_counter) & 0x80)>>7;
+    screen[(Icounter+y)*64 +x+co_counter] = screen_storing;
+}
+co_counter = 0;
+}
+    
+    break;
 
     default:
     break;
