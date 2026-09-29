@@ -5,6 +5,7 @@
 
 uint8_t memory[4096];
 uint8_t V[16];
+uint8_t keys[16];
 uint16_t pc = 0x200;
 uint8_t screen[2048];
 uint16_t stack[16];
@@ -174,7 +175,12 @@ co_counter = 0;
 }
     
     break;
-
+case 0xE:
+if (right == 0xA1){
+if (keys[V[second]] == 0){
+    pc+=2;
+}
+}
     default:
     break;
 
