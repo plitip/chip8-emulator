@@ -10,7 +10,30 @@ uint16_t pc = 0x200;
 uint8_t screen[2048];
 uint16_t stack[16];
 uint8_t sp;
+uint8_t DT;
+
+uint8_t ST;
 uint16_t I;
+
+uint8_t font[80] = {
+    0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+    0x20, 0x60, 0x20, 0x20, 0x70, // 1
+    0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+    0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+    0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+    0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+    0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+    0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+    0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+    0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+    0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+    0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+    0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+    0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+    0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+    0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+};
+
 void clear_screen(int value) {
     for(int clear_counter =0 ;2048>clear_counter; clear_counter++){
     screen[clear_counter] = value;
@@ -42,6 +65,11 @@ return 1;
 }
 
 fread(&memory[0x200], 1, romsize, file_pointer );
+    int fontcounter = 0;
+    for(;fontcounter <80;){
+    memory[0x050+fontcounter]= font[fontcounter];
+    fontcounter++;
+    }
 for (pc; pc<0x200+romsize;){
 uint8_t left = memory[pc];
 uint8_t right = memory[pc+1];
@@ -171,16 +199,66 @@ switch (first) {
     uint8_t screen_storing = screen[(Icounter+y)*64 +x+co_counter] ^ ((sprite_row <<co_counter) & 0x80)>>7;
     screen[(Icounter+y)*64 +x+co_counter] = screen_storing;
 }
-co_counter = 0;
+    co_counter = 0;
 }
     
     break;
-case 0xE:
-if (right == 0xA1){
-if (keys[V[second]] == 0){
+    case 0xE:
+    if (right == 0xA1){
+    if (keys[V[second]] == 0){
+    pc+=2;
+}
+    }   
+    if (right == 0x9E){
+    if (keys[V[second]] == 1){
     pc+=2;
 }
 }
+break;
+    case 0xF:
+    int catchkey = 0;
+    int catchcounter = 0;
+    int catchnumber = 0;
+    if (right == 0x0A){
+    while (catchkey==0){
+    if (catchcounter>=16){
+        catchkey+=1;
+        pc-=2;
+    }
+    for (;catchcounter<16;catchcounter++)
+    if (keys[catchcounter] == 0){
+} else{
+    catchkey+=1;
+    catchnumber = catchcounter;
+    catchcounter+=16;
+    V[second] = catchnumber;
+}
+    }
+    }
+    if (right == 0x07){
+    V[second]= DT;
+    }
+    if (right == 0x15){
+    DT = V[second];
+    }
+    if (right == 0x18){
+    ST = V[second];
+    }
+    if (right == 0x1E){
+    I =I +V[second];
+    }
+    if (right == 0x29){
+    I = 0x050 +V[second]* 5;
+    }
+    if (right == 0x33){
+    int Ihundred =  (V[second] /100) %10;
+    int Itens=  (V[second]/10) %10;
+    int Iones =  V[second]%10;
+    memory[I]= Ihundred;
+    memory[I+1]= Itens;
+    memory[I+2]= Iones;
+    }
+    break;
     default:
     break;
 
