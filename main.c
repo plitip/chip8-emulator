@@ -216,6 +216,7 @@ switch (first) {
     for(;co_counter < 8; co_counter++) {
     if (screen[(Icounter+y)*64 +x+co_counter] & ((sprite_row <<co_counter) & 0x80)>>7 == 1){
     V[15] = 1;
+        
     }
     uint8_t screen_storing = screen[(Icounter+y)*64 +x+co_counter] ^ ((sprite_row <<co_counter) & 0x80)>>7;
     screen[(Icounter+y)*64 +x+co_counter] = screen_storing;
