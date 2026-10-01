@@ -33,7 +33,19 @@ uint8_t font[80] = {
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
-
+void draw_term() {
+    for(int row_counter =0 ;32>row_counter; row_counter++){
+        for(int pixel_counter =0 ;64>pixel_counter; pixel_counter++){
+            if (screen[row_counter * 64 + pixel_counter] == 1) {
+        printf("#");
+        } else {
+        printf(" ");
+        
+        }
+        }
+        printf("\n");
+        }
+}
 void clear_screen(int value) {
     for(int clear_counter =0 ;2048>clear_counter; clear_counter++){
     screen[clear_counter] = value;
@@ -204,14 +216,13 @@ switch (first) {
     for(;co_counter < 8; co_counter++) {
     if (screen[(Icounter+y)*64 +x+co_counter] & ((sprite_row <<co_counter) & 0x80)>>7 == 1){
     V[15] = 1;
-        
     }
     uint8_t screen_storing = screen[(Icounter+y)*64 +x+co_counter] ^ ((sprite_row <<co_counter) & 0x80)>>7;
     screen[(Icounter+y)*64 +x+co_counter] = screen_storing;
 }
     co_counter = 0;
 }
-    
+    draw_term();
     break;
     case 0xE:
     if (right == 0xA1){
