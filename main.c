@@ -103,6 +103,16 @@ switch (first) {
     sp++;
     pc = last3;
     break;
+    case 0x3:
+    if(V[second]== right){
+        pc+=2;
+    }
+    break;
+    case 0x4:
+    if(V[second]!= right){
+        pc+=2;
+    }
+    break;
     case 0x5:
     if (last == 0 ){
         if(V[second] == V[third]){
@@ -266,12 +276,13 @@ break;
     
     }
     }
-    int Icounter2 = 0;
+    Icounter2 = 0;
     if (right == 0x65){
     for (;Icounter2<=second; Icounter2++){
 
     V[Icounter2]= memory[I+Icounter2];
     
+    }
     }
     break;
     default:
