@@ -258,6 +258,21 @@ break;
     memory[I+1]= Itens;
     memory[I+2]= Iones;
     }
+    int Icounter2 = 0;
+    if (right == 0x55){
+    for (;Icounter2<=second; Icounter2++){
+
+    memory[I+Icounter2] = V[Icounter2];
+    
+    }
+    }
+    int Icounter2 = 0;
+    if (right == 0x65){
+    for (;Icounter2<=second; Icounter2++){
+
+    V[Icounter2]= memory[I+Icounter2];
+    
+    }
     break;
     default:
     break;
