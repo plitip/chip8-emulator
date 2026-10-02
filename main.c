@@ -395,6 +395,12 @@ break;
 x++;
 
 }
+if(ST>0){
+ST--;
+}
+if (DT>0){
+DT--;
+}
 Uint32 final_speed = SDL_GetTicks();
 int delta = final_speed  - initial_speed;
     if (delta < 16){
