@@ -163,28 +163,32 @@ switch (first) {
     }
     if (last == 5){
     if ( V[second] >= V[third]){
+        V[second] = V[second] - V[third]; 
         V[15]= 1;
         
     }else{
+        V[second] = V[second] - V[third]; 
         V[15]= 0;
     }
-    V[second] = V[second] - V[third]; 
     }
     if (last == 6){
-        V[15] = V[second] & 0x01;
+        uint16_t placeholder = V[second] & 0x01;
         V[second] = V[second] / 2;
+        V[15] = placeholder;
     }
     if (last == 7){
     if (V[third] >= V[second]){
+    V[second] = V[third]-V[second];
     V[15]= 1;
     }else{
-        V[15]=0;
-    }
     V[second] = V[third]-V[second];
+    V[15]=0;
+    }
     }
     if (last == 0xE){
-    V[15] = (V[second] & 0x80) >>7;
+    uint16_t placeholder1 = (V[second] & 0x80) >>7;
     V[second] = V[second] << 1;
+    V[15] = placeholder1;
     }
     
     break;
