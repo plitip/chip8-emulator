@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <time.h>
+#include <SDL2/SDL.h>
 
 uint8_t memory[4096];
 uint8_t V[16];
@@ -51,7 +52,7 @@ void clear_screen(int value) {
     screen[clear_counter] = value;
         }
 }
-int main(){
+int main(int argc, char *argv[]){
 srand(time(NULL));
 FILE *file_pointer = fopen("IBMLogo.ch8", "rb");
 
