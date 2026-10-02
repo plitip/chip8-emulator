@@ -12,7 +12,7 @@ uint8_t screen[2048];
 uint16_t stack[16];
 uint8_t sp;
 uint8_t DT;
-
+SDL_Renderer *renderer;
 uint8_t ST;
 uint16_t I;
 
@@ -54,17 +54,21 @@ SDL_Scancode keymap[16] = {
     SDL_SCANCODE_V     // F
 };
 void draw_term() {
+SDL_SetRenderDrawColor(renderer,0, 0, 0, 255);
+SDL_RenderClear(renderer);
+SDL_SetRenderDrawColor(renderer,255, 255, 255, 255);
     for(int row_counter =0 ;32>row_counter; row_counter++){
         for(int pixel_counter =0 ;64>pixel_counter; pixel_counter++){
             if (screen[row_counter * 64 + pixel_counter] == 1) {
-        printf("#");
+            SDL_Rect rect = {pixel_counter*10, row_counter*10, 10, 10};
+            SDL_RenderFillRect(renderer, &rect);
         } else {
-        printf(" ");
         
         }
+        }   
+
         }
-        printf("\n");
-        }
+SDL_RenderPresent(renderer);
 }
 void clear_screen(int value) {
     for(int clear_counter =0 ;2048>clear_counter; clear_counter++){
@@ -74,6 +78,7 @@ void clear_screen(int value) {
 int main(int argc, char *argv[]){
     SDL_Init(SDL_INIT_VIDEO);
     SDL_Window *window = SDL_CreateWindow("CHIP8",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,640,320,SDL_WINDOW_SHOWN);
+    renderer = SDL_CreateRenderer(window,-1,0);
 srand(time(NULL));
 FILE *file_pointer = fopen("IBMLogo.ch8", "rb");
 
@@ -355,6 +360,7 @@ break;
 
 }
 }
+SDL_DestroyRenderer(renderer);
 SDL_DestroyWindow(window);
 SDL_Quit();
 fclose(file_pointer);
