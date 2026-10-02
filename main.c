@@ -34,6 +34,25 @@ uint8_t font[80] = {
     0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
     0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
+
+SDL_Scancode keymap[16] = {
+    SDL_SCANCODE_X,    // 0
+    SDL_SCANCODE_1,    // 1
+    SDL_SCANCODE_2,    // 2
+    SDL_SCANCODE_3,    // 3
+    SDL_SCANCODE_Q,    // 4
+    SDL_SCANCODE_W,    // 5
+    SDL_SCANCODE_E,    // 6
+    SDL_SCANCODE_A,    // 7
+    SDL_SCANCODE_S,    // 8
+    SDL_SCANCODE_D,    // 9
+    SDL_SCANCODE_Z,    // A
+    SDL_SCANCODE_C,    // B
+    SDL_SCANCODE_4,    // C
+    SDL_SCANCODE_R,    // D
+    SDL_SCANCODE_F,    // E
+    SDL_SCANCODE_V     // F
+};
 void draw_term() {
     for(int row_counter =0 ;32>row_counter; row_counter++){
         for(int pixel_counter =0 ;64>pixel_counter; pixel_counter++){
@@ -49,10 +68,12 @@ void draw_term() {
 }
 void clear_screen(int value) {
     for(int clear_counter =0 ;2048>clear_counter; clear_counter++){
-    screen[clear_counter] = value;
+    screen[clear_counter] = value;  
         }
 }
 int main(int argc, char *argv[]){
+    SDL_Init(SDL_INIT_VIDEO);
+    SDL_Window *window = SDL_CreateWindow("CHIP8",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,640,320,SDL_WINDOW_SHOWN);
 srand(time(NULL));
 FILE *file_pointer = fopen("IBMLogo.ch8", "rb");
 
@@ -83,7 +104,35 @@ fread(&memory[0x200], 1, romsize, file_pointer );
     memory[0x050+fontcounter]= font[fontcounter];
     fontcounter++;
     }
+int running = 1;
 for (pc; pc<0x200+romsize;){
+if (running == 0){
+    break;
+}
+SDL_Event event;
+while (SDL_PollEvent(&event)) {  
+if (event.type == SDL_QUIT){
+running =0;
+break;
+}
+if (event.type == SDL_KEYDOWN){
+int keycounter=0;
+for (keycounter;keycounter<16;keycounter++){
+if (event.key.keysym.scancode == keymap[keycounter]){
+    keys[keycounter] = 1;
+}
+}
+}   
+if (event.type == SDL_KEYUP){
+int keycounter=0;
+for (keycounter;keycounter<16;keycounter++){
+if (event.key.keysym.scancode == keymap[keycounter]){
+    keys[keycounter] = 0;
+}
+
+}
+} 
+    }
 uint8_t left = memory[pc];
 uint8_t right = memory[pc+1];
 uint16_t opcode = left << 8 | right;
@@ -93,7 +142,6 @@ uint8_t second = left & 0x0f ;
 uint8_t third = right >>4 ;
 uint8_t last = right & 0x0F;
 int last3 = opcode & 0xFFF;
-
 
 switch (first) {
     case 0x0:
@@ -307,7 +355,8 @@ break;
 
 }
 }
-
+SDL_DestroyWindow(window);
+SDL_Quit();
 fclose(file_pointer);
 return 0;
 
