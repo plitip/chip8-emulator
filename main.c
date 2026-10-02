@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <time.h>
 #include <SDL2/SDL.h>
+#include <string.h>
+#include <dirent.h>
 
 uint8_t memory[4096];
 uint8_t V[16];
@@ -85,19 +87,93 @@ void clear_screen(int value) {
 }
 
 
+int beep_phase = 0;
+
+void audio_callback(void *userdata, Uint8 *stream, int len) {
+    Sint8 *samples = (Sint8 *)stream;
+    for (int i = 0; i < len; i++) {
+        if (ST > 0) {
+            if (beep_phase < 50) {
+                samples[i] = 32;    
+            } else {
+                samples[i] = -32;   
+            }
+            beep_phase = (beep_phase + 1) % 100;   
+        } else {
+            samples[i] = 0;         
+        }
+    }
+}
+
+
+
+
+int choose_rom(char *chosen, int chosen_size) {
+    char roms[64][256];
+    int rom_count = 0;
+
+    DIR *folder = opendir(".");
+    if (folder == NULL) {
+        printf("Couldn't open the folder\n");
+        return 1;
+    }
+    struct dirent *entry;
+    while ((entry = readdir(folder)) != NULL && rom_count < 64) {
+        int name_length = strlen(entry->d_name);
+        if (name_length > 4 && strcmp(entry->d_name + name_length - 4, ".ch8") == 0) {
+            strncpy(roms[rom_count], entry->d_name, 255);
+            roms[rom_count][255] = '\0';
+            rom_count++;
+        }
+    }
+    closedir(folder);
+
+    if (rom_count == 0) {
+        printf("No .ch8 files found in this folder\n");
+        return 1;
+    }
+
+    printf("Pick a ROM:\n");
+    for (int i = 0; i < rom_count; i++) {
+        printf("  %d) %s\n", i + 1, roms[i]);
+    }
+    printf("Number: ");
+    fflush(stdout);
+
+    int choice = 0;
+    if (scanf("%d", &choice) != 1 || choice < 1 || choice > rom_count) {
+        printf("Invalid choice\n");
+        return 1;
+    }
+    strncpy(chosen, roms[choice - 1], chosen_size - 1);
+    chosen[chosen_size - 1] = '\0';
+    return 0;
+}
+
+
 
 
 int main(int argc, char *argv[]){
 
-    SDL_Init(SDL_INIT_VIDEO);
+    char rom_name[256];
+    if (argc > 1) {
+        strncpy(rom_name, argv[1], 255);
+        rom_name[255] = '\0';
+    } else if (choose_rom(rom_name, 256) != 0) {
+        return 1;
+    }
+
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO);
     SDL_Window *window = SDL_CreateWindow("CHIP8",SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,640,320,SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(window,-1,0);
-
-
+    SDL_AudioSpec audio = {44100, AUDIO_S8, 1, 0, 512, 0, 0, NULL, NULL};
+    audio.callback = audio_callback;
+    SDL_AudioDeviceID audio_device = SDL_OpenAudioDevice(NULL, 0, &audio, NULL, 0);
+    SDL_PauseAudioDevice(audio_device, 0); 
 srand(time(NULL));
 
 
-FILE *file_pointer = fopen("IBMLogo.ch8", "rb");
+FILE *file_pointer = fopen(rom_name, "rb");
 
 if (file_pointer == NULL) {
 printf("Rom couldn't open\n");
@@ -407,10 +483,11 @@ int delta = final_speed  - initial_speed;
     SDL_Delay(16-delta);
     }
 }
+SDL_CloseAudioDevice(audio_device);
 SDL_DestroyRenderer(renderer);
 SDL_DestroyWindow(window);
 SDL_Quit();
 fclose(file_pointer);
 return 0;
 
-}   
+}
